@@ -27,7 +27,7 @@ SOURCES   := sqlite3.c speedtest1.c
 OBJS      := $(SOURCES:%.c=$(BUILD)/%.o)
 
 OPT       ?= -O2
-CFLAGS    := $(OPT) -fPIE -I$(SRC_DIR) -DSQLITE_OMIT_LOAD_EXTENSION
+CFLAGS    := $(OPT) -fPIE -I$(SRC_DIR) -DSQLITE_OMIT_LOAD_EXTENSION -DSQLITE_ENABLE_RTREE
 LLCFLAGS  := $(OPT) -relocation-model=pic
 LDLIBS    := -lm -lpthread
 
