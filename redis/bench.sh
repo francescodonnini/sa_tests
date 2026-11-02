@@ -14,6 +14,7 @@
 #   -r <numero>    ripetizioni                           (default 5)
 #   -c <numero>    client paralleli                      (default 50)
 #   -P <numero>    comandi in pipeline per client        (default 1)
+#   -T <numero>    thread di redis-benchmark             (default 1)
 #   -t <test,...>  comandi di redis-benchmark            (default set,get,incr,lpush,rpop,sadd,hset,zadd,lrange_100)
 #   -k <numero>    chiavi caricate per il test di fork   (default 1000000, 0 = niente test di fork)
 #   -f <numero>    BGSAVE per esecuzione nel test di fork (default 10)
@@ -28,6 +29,7 @@ REQUESTS=1000000
 RUNS=5
 CLIENTS=50
 PIPELINE=1
+THREADS=1
 TESTS=set,get,incr,lpush,rpop,sadd,hset,zadd,lrange_100
 KEYS=1000000
 FORKS=10
@@ -39,12 +41,13 @@ usage() {
 	exit 1
 }
 
-while getopts "n:r:c:P:t:k:f:h" opt; do
+while getopts "n:r:c:P:T:t:k:f:h" opt; do
 	case $opt in
 		n) REQUESTS=$OPTARG ;;
 		r) RUNS=$OPTARG ;;
 		c) CLIENTS=$OPTARG ;;
 		P) PIPELINE=$OPTARG ;;
+		T) THREADS=$OPTARG ;;
 		t) TESTS=$OPTARG ;;
 		k) KEYS=$OPTARG ;;
 		f) FORKS=$OPTARG ;;
@@ -55,7 +58,7 @@ shift $((OPTIND - 1))
 [ $# -eq 1 ] || usage
 IFS=, read -r -a STAGES <<< "$1"
 
-for n in REQUESTS RUNS CLIENTS PIPELINE KEYS FORKS; do
+for n in REQUESTS RUNS CLIENTS PIPELINE THREADS KEYS FORKS; do
 	[[ ${!n} =~ ^[0-9]+$ ]] || die "$n deve essere un numero: ${!n}"
 done
 
@@ -84,7 +87,7 @@ done
 
 OUT=redis-bench-$(date +%Y%m%d-%H%M%S).csv
 echo "stage,test,run,valore" > "$OUT"
-echo "$REQUESTS richieste, $RUNS ripetizioni, $CLIENTS client, pipeline $PIPELINE, test: $TESTS"
+echo "$REQUESTS richieste, $RUNS ripetizioni, $CLIENTS client, pipeline $PIPELINE, $THREADS thread client, test: $TESTS"
 
 cli() { "$CLIENT/redis-cli" -p $PORT "$@"; }
 
@@ -116,11 +119,11 @@ run_stage() {
 	cli ping > /dev/null 2>&1 || die "$NAME: il server non risponde (vedi $HOME/redis-$NAME.log)"
 
 	echo "   riscaldamento (scartato)"
-	bench -n 200000 -c "$CLIENTS" -P "$PIPELINE" -t "$TESTS" > /dev/null
+	bench -n 200000 -c "$CLIENTS" -P "$PIPELINE" --threads "$THREADS" -t "$TESTS" > /dev/null
 
 	for run in $(seq 1 "$RUNS"); do
 		# --csv: "SET","123456.78",... (dopo una riga di intestazione)
-		bench -n "$REQUESTS" -c "$CLIENTS" -P "$PIPELINE" -t "$TESTS" --csv |
+		bench -n "$REQUESTS" -c "$CLIENTS" -P "$PIPELINE" --threads "$THREADS" -t "$TESTS" --csv |
 			awk -F'"' -v n="$NAME" -v r="$run" 'NR > 1 && $2 != "" {
 				t = $2   # "LPUSH (needed to benchmark LRANGE)" -> LPUSH_for_lrange
 				sub(/ \(needed to benchmark LRANGE\)/, "_for_lrange", t)
@@ -139,6 +142,11 @@ run_stage() {
 		echo "   test di fork: carico $KEYS chiavi"
 		cli flushall > /dev/null
 		bench -t set -n "$KEYS" -r "$KEYS" -d 100 -P 64 > /dev/null
+		# la prima fork dopo il caricamento è sempre più lenta: scartata
+		cli bgsave > /dev/null
+		while cli info persistence | grep -q '^rdb_bgsave_in_progress:1'; do
+			sleep 0.05
+		done
 		for run in $(seq 1 "$RUNS"); do
 			for f in $(seq 1 "$FORKS"); do
 				cli bgsave > /dev/null
@@ -149,8 +157,8 @@ run_stage() {
 				echo "$NAME,fork_usec,$run,$usec" >> "$OUT"
 			done
 		done
-		echo "   fork: $(grep "^$NAME,fork_usec," "$OUT" |
-			awk -F, '{s += $4; n++} END {printf "%.0f us in media su %d fork", s / n, n}')"
+		echo "   fork: $(grep "^$NAME,fork_usec," "$OUT" | cut -d, -f4 | sort -n |
+			awk '{v[NR] = $1} END {printf "mediana %d us, minimo %d us su %d fork", v[int((NR + 1) / 2)], v[1], NR}')"
 	fi
 
 	stop_server
