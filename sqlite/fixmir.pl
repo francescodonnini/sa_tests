@@ -1,1 +1,0 @@
-s{'<(\d+) x (\w+)> zeroinitializer'}{"'<$1 x $2> <" . join(", ", ("$2 0") x $1) . ">'"}ge;
