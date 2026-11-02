@@ -54,9 +54,11 @@ LDFLAGS   := -Wl,-e,relocate_stack -L$(RUNTIME) -Wl,-rpath,$(RUNTIME)
 LDLIBS    := -lruntime $(LDLIBS)
 endif
 
-# pass IR negli stage 2 e 4, pass x86 negli stage 3 e 4
+# pass IR negli stage 2 e 4, pass x86 negli stage 3 e 4.
+# MASK_FLAGS: opzioni in più per il mascheramento, solo dove c'è il pass IR,
+# per esempio make STAGE=4 MASK_FLAGS="-mllvm -x86-shadow-stack-btr"
+MASK_FLAGS ?=
 ifneq ($(filter 2 4,$(STAGE)),)
-CFLAGS    += -fpass-plugin=$(IR_PASS)
 CFLAGS    += -fpass-plugin=$(IR_PASS) $(MASK_FLAGS)
 endif
 ifneq ($(filter 3 4,$(STAGE)),)
@@ -72,48 +74,48 @@ all: $(BIN)
 # Dopo il link controlla che il binario sia davvero quello dello stage: il
 # preambolo del pass x86 legge __ss_shadow_offset, relocate_stack ne ha pochi.
 $(BIN): $(OBJS) $(ENTRY_OBJ)
-        $(CC) $^ $(LDFLAGS) $(LDLIBS) -o $@
-        @n=$$(objdump -d $@ | grep -c '__ss_shadow_offset' || true); \
-        case $(STAGE) in \
-                3|4) ok=$$([ $$n -ge 100 ] && echo y) ;; \
-                1|2) ok=$$([ $$n -lt 100 ] && echo y) ;; \
-                *)   ok=$$([ $$n -eq 0 ] && echo y) ;; \
-        esac; \
-        echo "stage $(STAGE): $$n riferimenti a __ss_shadow_offset"; \
-        [ "$$ok" = y ] || { echo "stage $(STAGE): binario non strumentato come previsto"; rm -f $@; exit 1; }
+	$(CC) $^ $(LDFLAGS) $(LDLIBS) -o $@
+	@n=$$(objdump -d $@ | grep -c '__ss_shadow_offset' || true); \
+	case $(STAGE) in \
+		3|4) ok=$$([ $$n -ge 100 ] && echo y) ;; \
+		1|2) ok=$$([ $$n -lt 100 ] && echo y) ;; \
+		*)   ok=$$([ $$n -eq 0 ] && echo y) ;; \
+	esac; \
+	echo "stage $(STAGE): $$n riferimenti a __ss_shadow_offset"; \
+	[ "$$ok" = y ] || { echo "stage $(STAGE): binario non strumentato come previsto"; rm -f $@; exit 1; }
 
 # Gli oggetti dipendono anche dal Makefile: se cambiano le opzioni, si ricompila
 $(BUILD)/%.o: $(SRC_DIR)/%.c Makefile | $(BUILD)
-        $(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD):
-        mkdir -p $@
+	mkdir -p $@
 
 # Scarica l'amalgamation e lo speedtest1.c della stessa versione
 fetch:
-        mkdir -p $(SRC_DIR)
-        curl -fL -o sqlite.zip \
-                https://www.sqlite.org/$(SQLITE_YEAR)/sqlite-amalgamation-$(SQLITE_VER).zip
-        unzip -j -o sqlite.zip '*/sqlite3.c' '*/sqlite3.h' -d $(SRC_DIR)
-        rm sqlite.zip
-        curl -fL -o $(SRC_DIR)/speedtest1.c \
-                https://raw.githubusercontent.com/sqlite/sqlite/$(SQLITE_TAG)/test/speedtest1.c
+	mkdir -p $(SRC_DIR)
+	curl -fL -o sqlite.zip \
+		https://www.sqlite.org/$(SQLITE_YEAR)/sqlite-amalgamation-$(SQLITE_VER).zip
+	unzip -j -o sqlite.zip '*/sqlite3.c' '*/sqlite3.h' -d $(SRC_DIR)
+	rm sqlite.zip
+	curl -fL -o $(SRC_DIR)/speedtest1.c \
+		https://raw.githubusercontent.com/sqlite/sqlite/$(SQLITE_TAG)/test/speedtest1.c
 
 run: $(BIN)
-        $(BIN) $(BENCH_ARGS); echo "exit code: $$?"
+	$(BIN) $(BENCH_ARGS); echo "exit code: $$?"
 
 # Esegue tutti gli stage e salva l'output in results/
 STAGES    ?= 0 1 2 3 4
 bench:
-        mkdir -p results
-        for s in $(STAGES); do \
-                $(MAKE) --no-print-directory STAGE=$$s all || exit 1; \
-                echo "== stage $$s"; \
-                build/stage$$s/speedtest1 $(BENCH_ARGS) > results/stage$$s.txt || exit 1; \
-                tail -1 results/stage$$s.txt; \
-        done
+	mkdir -p results
+	for s in $(STAGES); do \
+		$(MAKE) --no-print-directory STAGE=$$s all || exit 1; \
+		echo "== stage $$s"; \
+		build/stage$$s/speedtest1 $(BENCH_ARGS) > results/stage$$s.txt || exit 1; \
+		tail -1 results/stage$$s.txt; \
+	done
 
 clean:
-        rm -rf build
+	rm -rf build
 
 .PHONY: all fetch run bench clean
