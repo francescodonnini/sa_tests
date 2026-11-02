@@ -91,7 +91,24 @@ echo "$REQUESTS richieste, $RUNS ripetizioni, $CLIENTS client, pipeline $PIPELIN
 
 cli() { "$CLIENT/redis-cli" -p $PORT "$@"; }
 
+# Ctrl+C: senza questa riga bash termina senza eseguire il trap EXIT, e il
+# server (avviato in background, che ignora SIGINT) resterebbe in ascolto
+trap 'exit 130' INT TERM
+
+# un server rimasto da un'esecuzione interrotta risponderebbe al posto di
+# quello dello stage: meglio fermarsi
+if cli ping > /dev/null 2>&1; then
+	die "c'è già un server sulla porta $PORT: fermalo con $CLIENT/redis-cli -p $PORT shutdown nosave"
+fi
+
+# Con --threads (anche --threads 1) redis-benchmark si ferma solo al
+# successivo tick del suo timer, ogni 250 ms: la durata misurata è arrotondata
+# a multipli di 250 ms. Per questo l'opzione si passa solo con -T > 1, e in quel
+# caso ogni test deve durare molti secondi (-n grande).
 bench() {
+	if [ "$THREADS" -gt 1 ]; then
+		set -- --threads "$THREADS" "$@"
+	fi
 	taskset -c "$CLIENT_CPUS" "$CLIENT/redis-benchmark" -p $PORT -q "$@"
 }
 
@@ -119,11 +136,11 @@ run_stage() {
 	cli ping > /dev/null 2>&1 || die "$NAME: il server non risponde (vedi $HOME/redis-$NAME.log)"
 
 	echo "   riscaldamento (scartato)"
-	bench -n 200000 -c "$CLIENTS" -P "$PIPELINE" --threads "$THREADS" -t "$TESTS" > /dev/null
+	bench -n 200000 -c "$CLIENTS" -P "$PIPELINE" -t "$TESTS" > /dev/null
 
 	for run in $(seq 1 "$RUNS"); do
 		# --csv: "SET","123456.78",... (dopo una riga di intestazione)
-		bench -n "$REQUESTS" -c "$CLIENTS" -P "$PIPELINE" --threads "$THREADS" -t "$TESTS" --csv |
+		bench -n "$REQUESTS" -c "$CLIENTS" -P "$PIPELINE" -t "$TESTS" --csv |
 			awk -F'"' -v n="$NAME" -v r="$run" 'NR > 1 && $2 != "" {
 				t = $2   # "LPUSH (needed to benchmark LRANGE)" -> LPUSH_for_lrange
 				sub(/ \(needed to benchmark LRANGE\)/, "_for_lrange", t)
