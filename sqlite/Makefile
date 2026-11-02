@@ -57,6 +57,7 @@ endif
 # pass IR negli stage 2 e 4, pass x86 negli stage 3 e 4
 ifneq ($(filter 2 4,$(STAGE)),)
 CFLAGS    += -fpass-plugin=$(IR_PASS)
+CFLAGS    += -fpass-plugin=$(IR_PASS) $(MASK_FLAGS)
 endif
 ifneq ($(filter 3 4,$(STAGE)),)
 CFLAGS    += -mllvm -x86-shadow-stack-pass
