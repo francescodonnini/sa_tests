@@ -8,7 +8,7 @@
 # stage si alternano. Valori più alti sono migliori: nel riepilogo una
 # percentuale negativa è un rallentamento.
 set -uo pipefail
-. "$(dirname "$0")/common.sh"
+. "$(dirname "$0")/../common.sh"
 
 RUNS=5
 SECS=3

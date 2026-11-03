@@ -5,7 +5,7 @@
 #
 # Qualche minuto per stage. Si confrontano le ricette fallite con quelle di s0.
 set -uo pipefail
-. "$(dirname "$0")/common.sh"
+. "$(dirname "$0")/../common.sh"
 
 JOBS=$(nproc)
 while getopts "j:" opt; do

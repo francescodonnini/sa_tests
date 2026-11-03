@@ -11,7 +11,7 @@
 # passano a make aggiungendoli ai CFLAGS e LDFLAGS scritti da Configure.
 # Risultato: $SS_ROOT/openssl/sN/openssl
 set -euo pipefail
-. "$(dirname "$0")/common.sh"
+. "$(dirname "$0")/../common.sh"
 
 OSSL_REF=openssl-3.5.9
 STAGE=${1:-}; check_stage "$STAGE"
