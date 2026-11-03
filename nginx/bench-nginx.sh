@@ -6,6 +6,10 @@
 #             (parsing, header, eventi, log)
 #   100k      file da 100 KB: più peso a sendfile e al kernel
 #   gzip      file da 100 KB compresso al volo (gzip, zlib di sistema)
+#   close     file piccolo con una connessione nuova per richiesta (accept,
+#             pool di connessione e richiesta, chiusura)
+#   proxy     file piccolo attraverso nginx come reverse proxy verso un secondo
+#             server dello stesso processo (modulo upstream, keep-alive)
 # nginx usa un solo worker sul core 1; wrk (2 thread, -c connessioni keep-alive,
 # default 64) gira sui core 2 e 3, che devono esistere. Serve almeno una VM a
 # 4 vCPU. Per ogni misura nginx viene avviato e fermato; gli stage si
@@ -71,10 +75,20 @@ http {
     sendfile on;
     tcp_nopush on;
     keepalive_requests 100000;
+	upstream back { server 127.0.0.1:$((PORT + 1)); keepalive 32; }
+	server {
+        listen 127.0.0.1:$((PORT + 1));
+        root $RUN/html;
+    }
     server {
         listen 127.0.0.1:$PORT;
         root $RUN/html;
         location = /gzip.html { gzip on; gzip_types *; gzip_min_length 0; }
+		location /proxy/ {
+               proxy_pass http://back/;
+               proxy_http_version 1.1;
+               proxy_set_header Connection "";
+           }
     }
 }
 EOF
@@ -82,7 +96,9 @@ EOF
 # nome|percorso|header aggiuntivo
 CASES='small|/small.html|
 100k|/100k.html|
-gzip|/gzip.html|Accept-Encoding: gzip'
+gzip|/gzip.html|Accept-Encoding: gzip
+close|/small.html|Connection: close
+proxy|/proxy/small.html|'
 
 OUT=$PWD/bench-nginx-$(date +%Y%m%d-%H%M%S).csv
 echo "stage,test,run,req/s" > "$OUT"
