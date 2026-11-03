@@ -1,3 +1,4 @@
 src/
 build/
 local.mk
+scripts/
