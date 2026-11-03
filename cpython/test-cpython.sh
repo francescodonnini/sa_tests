@@ -8,7 +8,7 @@
 # ripete una volta i test falliti (rerun): sono "falliti" quelli che falliscono
 # anche la seconda volta. Si confrontano i test falliti con quelli di s0.
 set -uo pipefail
-. "$(dirname "$0")/common.sh"
+. "$(dirname "$0")/../common.sh"
 
 JOBS=$(nproc)
 RES=

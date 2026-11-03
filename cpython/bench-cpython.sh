@@ -13,7 +13,7 @@
 # circa un'ora per stage. Il confronto finale è di pyperf (compare_to), rispetto
 # al primo stage; per un sistema più stabile si può usare "pyperf system tune".
 set -uo pipefail
-. "$(dirname "$0")/common.sh"
+. "$(dirname "$0")/../common.sh"
 
 : "${PYPERFORMANCE_VERSION:=1.14.0}"
 BENCH=default

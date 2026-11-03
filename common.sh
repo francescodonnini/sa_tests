@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 # Funzioni comuni agli script build-*.sh, bench-*.sh e test-*.sh.
-# Si include con:  . "$(dirname "$0")/common.sh"
+# Si include con:  . "$(dirname "$0")/../common.sh"
 #
 # Stage della pipeline:
 #   0  baseline: nessuna protezione

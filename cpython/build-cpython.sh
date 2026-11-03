@@ -14,7 +14,7 @@
 #   dnf install openssl-devel libffi-devel zlib-devel bzip2-devel xz-devel sqlite-devel
 # Risultato: $SS_ROOT/cpython/sN/bin/python3
 set -euo pipefail
-. "$(dirname "$0")/common.sh"
+. "$(dirname "$0")/../common.sh"
 
 PY_REF=v3.14.10
 STAGE=${1:-}; check_stage "$STAGE"
