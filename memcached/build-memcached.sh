@@ -25,6 +25,9 @@ echo "== autogen + configure (stage $STAGE)"
 # gcov nel sistema, e il link richiede libclang_rt.profile.a (compiler-rt),
 # che la build di LLVM non ha.
 (cd "$BUILD" && GIT_DIR="$DIR/src/.git" ./autogen.sh && ./configure CC="$CLANG" --disable-coverage) > "$BUILD/configure.log" 2>&1 ||
+	die "configure fallito: vedi $BUILD/configure.log"
+
+CF="$(sed -n 's/^CFLAGS = //p' "$BUILD/Makefile") $COPT"
 CF="$(sed -n 's/^CFLAGS = //p' "$BUILD/Makefile") $COPT"
 LF="$(sed -n 's/^LDFLAGS = //p' "$BUILD/Makefile") $LDOPT"
 printf 'CF=%q\nLF=%q\n' "$CF" "$LF" > "$BUILD/ss-flags.sh"
