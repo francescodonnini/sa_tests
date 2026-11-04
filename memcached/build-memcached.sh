@@ -21,10 +21,10 @@ fetch_src https://github.com/memcached/memcached "$MC_REF" "$DIR/src"
 fresh_copy "$DIR/src" "$BUILD"
 
 echo "== autogen + configure (stage $STAGE)"
-# la versione viene da "git describe": la copia non ha .git, si usa quello dei sorgenti
-(cd "$BUILD" && GIT_DIR="$DIR/src/.git" ./autogen.sh && ./configure CC="$CLANG") > "$BUILD/configure.log" 2>&1 ||
-	die "configure fallito: vedi $BUILD/configure.log"
-
+# --disable-coverage: senza, configure attiva gcov per memcached-debug se trova
+# gcov nel sistema, e il link richiede libclang_rt.profile.a (compiler-rt),
+# che la build di LLVM non ha.
+(cd "$BUILD" && GIT_DIR="$DIR/src/.git" ./autogen.sh && ./configure CC="$CLANG" --disable-coverage) > "$BUILD/configure.log" 2>&1 ||
 CF="$(sed -n 's/^CFLAGS = //p' "$BUILD/Makefile") $COPT"
 LF="$(sed -n 's/^LDFLAGS = //p' "$BUILD/Makefile") $LDOPT"
 printf 'CF=%q\nLF=%q\n' "$CF" "$LF" > "$BUILD/ss-flags.sh"
