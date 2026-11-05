@@ -13,11 +13,9 @@ set -euo pipefail
 BASE="git make cmake tar patch gawk binutils util-linux perl perl-Test-Harness python3"
 
 declare -A DEPS=(
-	[lua]=""
 	[zstd]=""
 	[xz]=""
 	[git]="zlib-devel"
-	[quickjs]=""
 	[php]="autoconf bison re2c"
 	# moduli C facoltativi della stdlib; pyperformance crea i venv con pip
 	[cpython]="openssl-devel libffi-devel zlib-devel bzip2-devel xz-devel sqlite-devel
@@ -27,6 +25,13 @@ declare -A DEPS=(
 	# memtier_benchmark (C++) per il benchmark
 	[memcached]="autoconf automake libevent-devel gcc-c++ openssl-devel zlib-devel"
 	[openssl]=""
+	# amalgamation e speedtest1.c scaricati da sqlite.org e GitHub
+	[sqlite]="curl unzip"
+	# dal repository git servono i generatori del parser
+	[postgres]="bison flex"
+	# tclsh per la suite di test (runtest)
+	[redis]="tcl"
+	[duckdb]="ninja-build gcc-c++ python3"
 )
 
 if [ $# -eq 0 ]; then
