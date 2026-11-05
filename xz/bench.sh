@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Benchmark di xz: tempo di compressione (preset -1 e -6, il default) e di
 # decompressione di un file, in un solo thread (-T1).
-#   Uso: ./bench-xz.sh [-r ripetizioni] [-f file] <stage>[,<stage>...]
+#   Uso: ./bench.sh [-r ripetizioni] [-f file] <stage>[,<stage>...]
 #
 # Input di default: un tar dei sorgenti di xz (circa 8 MB, testo e codice: il
 # caso tipico di xz), creato con ordine e date fissi, quindi identico ad ogni
@@ -28,7 +28,7 @@ parse_stages "$1"
 
 DIR=$SS_ROOT/xz
 for s in "${STAGES[@]}" 0; do
-	[ -x "$DIR/s$s/xz" ] || die "stage $s: $DIR/s$s/xz non trovato (lancia build-xz.sh $s)"
+	[ -x "$DIR/s$s/xz" ] || die "stage $s: $DIR/s$s/xz non trovato (lancia build.sh $s)"
 done
 for s in "${STAGES[@]}"; do check_prereq "$s"; done
 
@@ -49,7 +49,7 @@ echo "input: $INPUT ($(du -h "$INPUT" | cut -f1))"
 COMP_N=3
 DECOMP_N=20
 
-OUT=$PWD/bench-xz-$(date +%Y%m%d-%H%M%S).csv
+OUT=$(result_path bench xz).csv
 echo "stage,test,run,secondi" > "$OUT"
 for run in $(seq 1 "$RUNS"); do
 	echo "== ripetizione $run/$RUNS"

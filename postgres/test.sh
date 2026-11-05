@@ -25,7 +25,7 @@ parse_stages "$1"
 [ "$(id -u)" -ne 0 ] || die "initdb non gira come root: lancia lo script come utente normale"
 
 DIR=$SS_ROOT/postgres
-OUT=$PWD/test-postgres-$(date +%Y%m%d-%H%M%S)
+OUT=$(result_path test postgres)
 mkdir -p "$OUT"
 
 # nomi dei test falliti nel log di pg_regress, uno per riga

@@ -27,6 +27,17 @@
 
 die() { echo "$(basename "$0"): $*" >&2; exit 1; }
 
+# Risultati di bench e test, tutti sotto una sola cartella (da copiare in blocco):
+#   $SS_RESULTS/bench/<programma>/<data>.csv    $SS_RESULTS/test/<programma>/<data>/
+# Default: results/ accanto a common.sh, cioè nella radice del repository.
+: "${SS_RESULTS:=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/results}"
+
+# result_path <bench|test> <programma>: percorso del risultato, senza estensione
+result_path() {
+	mkdir -p "$SS_RESULTS/$1/$2"
+	echo "$SS_RESULTS/$1/$2/$(date +%Y%m%d-%H%M%S)"
+}
+
 # Ctrl+C: senza questo bash esce senza eseguire il trap EXIT (server lasciati accesi)
 trap 'exit 130' INT TERM
 

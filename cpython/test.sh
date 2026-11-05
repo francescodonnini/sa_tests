@@ -23,13 +23,13 @@ shift $((OPTIND - 1))
 [ $# -eq 1 ] || die "uso: $0 [-j job] [-u risorse] <stage>[,<stage>...]"
 parse_stages "$1"
 DIR=$SS_ROOT/cpython
-OUT=$PWD/test-cpython-$(date +%Y%m%d-%H%M%S)
+OUT=$(result_path test cpython)
 mkdir -p "$OUT"
 
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
 	B=$DIR/build-s$s
-	[ -x "$B/python" ] || die "stage $s: lancia build-cpython.sh $s"
+	[ -x "$B/python" ] || die "stage $s: lancia build.sh $s"
 	t0=$(now)
 	# shellcheck disable=SC2086
 	(cd "$B" && ./python -m test -j"$JOBS" $RES --timeout 1800) > "$OUT/s$s.log" 2>&1

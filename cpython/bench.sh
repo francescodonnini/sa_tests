@@ -32,7 +32,7 @@ parse_stages "$1"
 DIR=$SS_ROOT/cpython
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
-	[ -x "$DIR/s$s/bin/python3" ] || die "stage $s: lancia build-cpython.sh $s"
+	[ -x "$DIR/s$s/bin/python3" ] || die "stage $s: lancia build.sh $s"
 done
 
 # pyperformance gira con il python di sistema e lancia i benchmark con --python
@@ -43,7 +43,7 @@ if [ ! -x "$PP/bin/pyperformance" ]; then
 		die "installazione di pyperformance fallita"
 fi
 
-OUT=$PWD/bench-cpython-$(date +%Y%m%d-%H%M%S)
+OUT=$(result_path bench cpython)
 mkdir -p "$OUT"
 for s in "${STAGES[@]}"; do
 	echo "== stage $s"

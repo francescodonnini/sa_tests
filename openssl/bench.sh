@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Benchmark di OpenSSL: openssl speed (senza assembly, quindi il codice C).
-#   Uso: ./bench-openssl.sh [-r ripetizioni] [-s secondi] <stage>[,<stage>...]
+#   Uso: ./bench.sh [-r ripetizioni] [-s secondi] <stage>[,<stage>...]
 #
 #   sha256, sha512, aes-128-gcm, chacha20-poly1305   MB/s su blocchi da 16 KB
 #   rsa2048, ecdsap256, ed25519                      firme e verifiche al secondo
@@ -26,7 +26,7 @@ parse_stages "$1"
 DIR=$SS_ROOT/openssl
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
-	[ -x "$DIR/s$s/openssl" ] || die "stage $s: $DIR/s$s/openssl non trovato (lancia build-openssl.sh $s)"
+	[ -x "$DIR/s$s/openssl" ] || die "stage $s: $DIR/s$s/openssl non trovato (lancia build.sh $s)"
 done
 
 # nome|argomenti di openssl speed
@@ -38,7 +38,7 @@ rsa2048|rsa2048
 ecdsap256|ecdsap256
 ed25519|ed25519'
 
-OUT=$PWD/bench-openssl-$(date +%Y%m%d-%H%M%S).csv
+OUT=$(result_path bench openssl).csv
 echo "stage,test,run,valore" > "$OUT"
 for run in $(seq 1 "$RUNS"); do
 	echo "== ripetizione $run/$RUNS"

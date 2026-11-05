@@ -71,7 +71,7 @@ wait_bgsave() {
 	while cli info persistence | grep -q '^rdb_bgsave_in_progress:1'; do sleep 0.05; done
 }
 
-OUT=$PWD/bench-redis-$(date +%Y%m%d-%H%M%S).csv
+OUT=$(result_path bench redis).csv
 echo "stage,test,run,valore" > "$OUT"
 echo "$REQUESTS richieste, $RUNS ripetizioni, $CLIENTS client, pipeline $PIPELINE, test: $TESTS"
 

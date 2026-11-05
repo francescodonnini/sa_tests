@@ -3,7 +3,7 @@
 # motore distribuiti con PHP (bench.php: mandel, ackermann, fibo, hash,
 # heapsort, matrix, sieve, strcat...; micro_bench.php: chiamate, proprietà,
 # accessi statici, array, ...). Ogni sotto-test stampa il suo tempo.
-#   Uso: ./bench-php.sh [-r ripetizioni] <stage>[,<stage>...]
+#   Uso: ./bench.sh [-r ripetizioni] <stage>[,<stage>...]
 #
 # Per micro_bench si registra il tempo lordo (senza sottrarre il ciclo vuoto).
 # opcache è disattivato per la CLI (default), quindi si misura l'interprete.
@@ -22,10 +22,10 @@ parse_stages "$1"
 DIR=$SS_ROOT/php
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
-	[ -x "$DIR/s$s/php" ] || die "stage $s: $DIR/s$s/php non trovato (lancia build-php.sh $s)"
+	[ -x "$DIR/s$s/php" ] || die "stage $s: $DIR/s$s/php non trovato (lancia build.sh $s)"
 done
 
-OUT=$PWD/bench-php-$(date +%Y%m%d-%H%M%S).csv
+OUT=$(result_path bench php).csv
 echo "stage,test,run,secondi" > "$OUT"
 for run in $(seq 1 "$RUNS"); do
 	echo "== ripetizione $run/$RUNS"

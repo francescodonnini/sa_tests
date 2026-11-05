@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Benchmark di zstd: velocità di compressione e decompressione in memoria
 # (zstd -b, il benchmark integrato), ai livelli 1, 3 e 9.
-#   Uso: ./bench-zstd.sh [-r ripetizioni] [-f file] <stage>[,<stage>...]
+#   Uso: ./bench.sh [-r ripetizioni] [-f file] <stage>[,<stage>...]
 #
 # Input di default: 100 MB generati da datagen (compressibilità circa 3x,
 # riproducibile). Con -f si usa un file reale, per esempio un tar del kernel o
@@ -27,7 +27,7 @@ parse_stages "$1"
 DIR=$SS_ROOT/zstd
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
-	[ -x "$DIR/s$s/zstd" ] || die "stage $s: $DIR/s$s/zstd non trovato (lancia build-zstd.sh $s)"
+	[ -x "$DIR/s$s/zstd" ] || die "stage $s: $DIR/s$s/zstd non trovato (lancia build.sh $s)"
 done
 if [ -z "$INPUT" ]; then
 	INPUT=$DIR/bench-input.dat
@@ -42,7 +42,7 @@ fi
 # sola cifra decimale e la misura perde precisione.
 LEVELS="1:3 3:3 9:4"
 
-OUT=$PWD/bench-zstd-$(date +%Y%m%d-%H%M%S).csv
+OUT=$(result_path bench zstd).csv
 echo "stage,test,run,MB/s" > "$OUT"
 for run in $(seq 1 "$RUNS"); do
 	echo "== ripetizione $run/$RUNS"

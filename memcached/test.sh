@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Suite di test di memcached (make test) sugli stage indicati.
-#   Uso: ./test-memcached.sh [-j job] <stage>[,<stage>...]      es. ./test-memcached.sh 0,4
+#   Uso: ./test.sh [-j job] <stage>[,<stage>...]      es. ./test.sh 0,4
 #
 # make test esegue sizes, testapp (test in C del protocollo binario e del
 # server) e i circa 100 script Perl in t/ (protocolli text/meta/binary, LRU,
@@ -17,13 +17,13 @@ shift $((OPTIND - 1))
 [ $# -eq 1 ] || die "uso: $0 [-j job] <stage>[,<stage>...]"
 parse_stages "$1"
 DIR=$SS_ROOT/memcached
-OUT=$PWD/test-memcached-$(date +%Y%m%d-%H%M%S)
+OUT=$(result_path test memcached)
 mkdir -p "$OUT"
 
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
 	B=$DIR/build-s$s
-	[ -f "$B/ss-flags.sh" ] || die "stage $s: lancia build-memcached.sh $s"
+	[ -f "$B/ss-flags.sh" ] || die "stage $s: lancia build.sh $s"
 	# shellcheck disable=SC1091
 	. "$B/ss-flags.sh"
 	t0=$(now)

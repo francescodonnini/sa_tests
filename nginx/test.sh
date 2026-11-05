@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Suite di test di nginx (nginx-tests, circa 500 script Perl) sugli stage indicati.
-#   Uso: ./test-nginx.sh [-j job] <stage>[,<stage>...]      es. ./test-nginx.sh 0,4
+#   Uso: ./test.sh [-j job] <stage>[,<stage>...]      es. ./test.sh 0,4
 #
 # Ogni script avvia l'nginx dello stage con una propria configurazione e lo
 # interroga via HTTP/stream. I test per moduli non compilati (ssl, http2,
@@ -19,12 +19,12 @@ shift $((OPTIND - 1))
 parse_stages "$1"
 DIR=$SS_ROOT/nginx
 fetch_src https://github.com/nginx/nginx-tests "$TESTS_REF" "$DIR/nginx-tests"
-OUT=$PWD/test-nginx-$(date +%Y%m%d-%H%M%S)
+OUT=$(result_path test nginx)
 mkdir -p "$OUT"
 
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
-	[ -x "$DIR/s$s/sbin/nginx" ] || die "stage $s: lancia build-nginx.sh $s"
+	[ -x "$DIR/s$s/sbin/nginx" ] || die "stage $s: lancia build.sh $s"
 	t0=$(now)
 	(cd "$DIR/nginx-tests" && TEST_NGINX_BINARY="$DIR/s$s/sbin/nginx" prove -j"$JOBS" .) > "$OUT/s$s.log" 2>&1
 	# riepilogo di prove: "./xx.t (Wstat: ... Tests: ... Failed: N)"

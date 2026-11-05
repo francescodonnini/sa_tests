@@ -60,7 +60,7 @@ if "$DIR/s0/bin/pg_isready" -q -p $PORT 2> /dev/null; then
 	die "c'è già un server sulla porta $PORT (fermalo con pg_ctl -D $DIR/data-sN stop)"
 fi
 
-OUT=$PWD/bench-postgres-$(date +%Y%m%d-%H%M%S).csv
+OUT=$(result_path bench postgres).csv
 echo "stage,test,run,tps" > "$OUT"
 echo "durata ${DURATION}s, $RUNS ripetizioni, test: $TESTS, client $CLIENTS, thread $THREADS"
 

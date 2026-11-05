@@ -26,7 +26,7 @@ parse_stages "$1"
 command -v tclsh > /dev/null || die "tclsh non trovato (lancia deps-fedora.sh redis)"
 
 DIR=$SS_ROOT/redis
-OUT=$PWD/test-redis-$(date +%Y%m%d-%H%M%S)
+OUT=$(result_path test redis)
 mkdir -p "$OUT"
 
 for s in "${STAGES[@]}"; do

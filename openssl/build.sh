@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Compila OpenSSL per uno stage.   Uso: ./build-openssl.sh <stage 0-4>
+# Compila OpenSSL per uno stage.   Uso: ./build.sh <stage 0-4>
 #
 # Opzioni di Configure (uguali per ogni stage):
 #   no-asm      niente implementazioni in assembly (AES-NI, SHA, bignum...):

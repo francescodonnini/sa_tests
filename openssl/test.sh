@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Suite di test di OpenSSL (make test: circa 300 ricette in test/recipes, con
 # migliaia di casi: algoritmi, vettori di test, TLS/DTLS end-to-end, X.509, ...).
-#   Uso: ./test-openssl.sh [-j job] <stage>[,<stage>...]      es. ./test-openssl.sh 0,4
+#   Uso: ./test.sh [-j job] <stage>[,<stage>...]      es. ./test.sh 0,4
 #
 # Qualche minuto per stage. Si confrontano le ricette fallite con quelle di s0.
 set -uo pipefail
@@ -15,13 +15,13 @@ shift $((OPTIND - 1))
 [ $# -eq 1 ] || die "uso: $0 [-j job] <stage>[,<stage>...]"
 parse_stages "$1"
 DIR=$SS_ROOT/openssl
-OUT=$PWD/test-openssl-$(date +%Y%m%d-%H%M%S)
+OUT=$(result_path test openssl)
 mkdir -p "$OUT"
 
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
 	B=$DIR/build-s$s
-	[ -f "$B/ss-flags.sh" ] || die "stage $s: lancia build-openssl.sh $s"
+	[ -f "$B/ss-flags.sh" ] || die "stage $s: lancia build.sh $s"
 	# shellcheck disable=SC1091
 	. "$B/ss-flags.sh"
 	t0=$(now)

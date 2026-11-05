@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Compila memcached per uno stage.   Uso: ./build-memcached.sh <stage 0-4>
+# Compila memcached per uno stage.   Uso: ./build.sh <stage 0-4>
 #
 # Dal repository git serve autogen.sh (autoconf, automake) e libevent:
 #   dnf install autoconf automake libevent-devel

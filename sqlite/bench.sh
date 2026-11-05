@@ -29,7 +29,7 @@ for s in "${STAGES[@]}"; do
 	[ -x "$DIR/s$s/speedtest1" ] || die "stage $s: lancia build.sh $s"
 done
 
-OUT=$PWD/bench-sqlite-$(date +%Y%m%d-%H%M%S).csv
+OUT=$(result_path bench sqlite).csv
 echo "stage,test,run,secondi" > "$OUT"
 for run in $(seq 1 "$RUNS"); do
 	echo "== ripetizione $run/$RUNS"

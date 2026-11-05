@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Benchmark di nginx con wrk: richieste al secondo su file statici.
-#   Uso: ./bench-nginx.sh [-r ripetizioni] [-d secondi] [-c connessioni] <stage>[,<stage>...]
+#   Uso: ./bench.sh [-r ripetizioni] [-d secondi] [-c connessioni] <stage>[,<stage>...]
 #
 #   small     file da 612 byte (la pagina di default): domina il codice di nginx
 #             (parsing, header, eventi, log)
@@ -37,7 +37,7 @@ parse_stages "$1"
 DIR=$SS_ROOT/nginx
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
-	[ -x "$DIR/s$s/sbin/nginx" ] || die "stage $s: lancia build-nginx.sh $s"
+	[ -x "$DIR/s$s/sbin/nginx" ] || die "stage $s: lancia build.sh $s"
 done
 
 # wrk, compilato normalmente (non strumentato), con LuaJIT e OpenSSL inclusi
@@ -100,7 +100,7 @@ gzip|/gzip.html|Accept-Encoding: gzip
 close|/small.html|Connection: close
 proxy|/proxy/small.html|'
 
-OUT=$PWD/bench-nginx-$(date +%Y%m%d-%H%M%S).csv
+OUT=$(result_path bench nginx).csv
 echo "stage,test,run,req/s" > "$OUT"
 for run in $(seq 1 "$RUNS"); do
 	echo "== ripetizione $run/$RUNS"

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Suite di test di DuckDB sugli stage indicati.
-#   Uso: ./test-duckdb.sh [-j job] [-p pattern] <stage>[,<stage>...]
+#   Uso: ./test.sh [-j job] [-p pattern] <stage>[,<stage>...]
 #
-#   ./test-duckdb.sh 0,4                      i test di default (senza quelli lenti)
-#   ./test-duckdb.sh -p 'test/sql/join/*' 0,4  solo una parte
+#   ./test.sh 0,4                      i test di default (senza quelli lenti)
+#   ./test.sh -p 'test/sql/join/*' 0,4  solo una parte
 # Si usa build/test/run, il runner di DuckDB (scripts/ci/run_tests.py): divide
 # i test (circa 4000 file sqllogictest più i test C++) in gruppi eseguiti da
 # più processi unittest in parallelo, così un crash ferma solo il suo gruppo.
@@ -25,13 +25,13 @@ shift $((OPTIND - 1))
 [ $# -eq 1 ] || die "uso: $0 [-j job] [-p pattern] <stage>[,<stage>...]"
 parse_stages "$1"
 DIR=$SS_ROOT/duckdb
-OUT=$PWD/test-duckdb-$(date +%Y%m%d-%H%M%S)
+OUT=$(result_path test duckdb)
 mkdir -p "$OUT"
 
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
 	B=$DIR/build-s$s
-	[ -x "$B/build/test/unittest" ] || die "stage $s: lancia build-duckdb.sh $s"
+	[ -x "$B/build/test/unittest" ] || die "stage $s: lancia build.sh $s"
 	t0=$(now)
 	# i percorsi dei test sono relativi alla radice dei sorgenti
 	# shellcheck disable=SC2086

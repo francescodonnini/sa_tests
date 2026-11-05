@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Benchmark di memcached con memtier_benchmark (protocollo text).
-#   Uso: ./bench-memcached.sh [-r ripetizioni] [-d secondi] <stage>[,<stage>...]
+#   Uso: ./bench.sh [-r ripetizioni] [-d secondi] <stage>[,<stage>...]
 #
 #   set       solo scritture
 #   get       solo letture (chiavi già caricate)
@@ -34,7 +34,7 @@ parse_stages "$1"
 DIR=$SS_ROOT/memcached
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
-	[ -x "$DIR/s$s/memcached" ] || die "stage $s: lancia build-memcached.sh $s"
+	[ -x "$DIR/s$s/memcached" ] || die "stage $s: lancia build.sh $s"
 done
 
 MT=$SS_ROOT/tools/memtier_benchmark
@@ -66,7 +66,7 @@ get|--ratio=0:1 --test-time=$DUR
 mixed|--ratio=1:10 --test-time=$DUR
 get-P16|--ratio=0:1 --pipeline=16 --test-time=$DUR"
 
-OUT=$PWD/bench-memcached-$(date +%Y%m%d-%H%M%S).csv
+OUT=$(result_path bench memcached).csv
 echo "stage,test,run,ops/s" > "$OUT"
 for run in $(seq 1 "$RUNS"); do
 	echo "== ripetizione $run/$RUNS"

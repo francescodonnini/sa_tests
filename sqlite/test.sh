@@ -25,7 +25,7 @@ parse_stages "0,$1"
 mapfile -t STAGES < <(printf '%s\n' "${STAGES[@]}" | awk '!seen[$0]++')
 
 DIR=$SS_ROOT/sqlite
-OUT=$PWD/test-sqlite-$(date +%Y%m%d-%H%M%S)
+OUT=$(result_path test sqlite)
 mkdir -p "$OUT"
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"

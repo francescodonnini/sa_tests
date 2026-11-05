@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Compila zstd per uno stage.   Uso: ./build-zstd.sh <stage 0-4>
+# Compila zstd per uno stage.   Uso: ./build.sh <stage 0-4>
 #
 # Si compilano:
 #   programs/zstd                 la CLI (benchmark e playTests.sh)

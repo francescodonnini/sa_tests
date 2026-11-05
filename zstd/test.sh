@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Test di zstd sugli stage indicati.
-#   Uso: ./test-zstd.sh [-i iterazioni] <stage>[,<stage>...]      es. ./test-zstd.sh 0,4
+#   Uso: ./test.sh [-i iterazioni] <stage>[,<stage>...]      es. ./test.sh 0,4
 #
 #   playTests.sh   test della CLI (circa 1000 casi: formati, dizionari, thread, file)
 #   fuzzer         compressione/decompressione su dati casuali, API a blocchi
@@ -18,13 +18,13 @@ shift $((OPTIND - 1))
 [ $# -eq 1 ] || die "uso: $0 [-i iterazioni] <stage>[,<stage>...]"
 parse_stages "$1"
 DIR=$SS_ROOT/zstd
-OUT=$PWD/test-zstd-$(date +%Y%m%d-%H%M%S)
+OUT=$(result_path test zstd)
 mkdir -p "$OUT"
 
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
 	B=$DIR/build-s$s
-	[ -x "$DIR/s$s/zstd" ] && [ -x "$B/tests/fuzzer" ] || die "stage $s: lancia build-zstd.sh $s"
+	[ -x "$DIR/s$s/zstd" ] && [ -x "$B/tests/fuzzer" ] || die "stage $s: lancia build.sh $s"
 	: > "$OUT/s$s.failed"
 	for t in playTests fuzzer zstreamtest zstreamtest-newapi; do
 		log=$OUT/s$s-$t.log

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Suite di test di PHP (run-tests.php, i file .phpt) sugli stage indicati.
-#   Uso: ./test-php.sh [-j job] <stage>[,<stage>...]      es. ./test-php.sh 0,4
+#   Uso: ./test.sh [-j job] <stage>[,<stage>...]      es. ./test.sh 0,4
 #
 # Con --disable-all restano circa 10000 test: motore Zend, linguaggio, standard,
 # pcre, spl, date, json, hash, random, ... (qualche minuto per stage).
@@ -17,13 +17,13 @@ shift $((OPTIND - 1))
 [ $# -eq 1 ] || die "uso: $0 [-j job] <stage>[,<stage>...]"
 parse_stages "$1"
 DIR=$SS_ROOT/php
-OUT=$PWD/test-php-$(date +%Y%m%d-%H%M%S)
+OUT=$(result_path test php)
 mkdir -p "$OUT"
 
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
 	B=$DIR/build-s$s
-	[ -x "$B/sapi/cli/php" ] || die "stage $s: lancia build-php.sh $s"
+	[ -x "$B/sapi/cli/php" ] || die "stage $s: lancia build.sh $s"
 	t0=$(now)
 	# -w: elenco dei test falliti; NO_INTERACTION: niente domande a fine run
 	(cd "$B" && NO_INTERACTION=1 TEST_PHP_EXECUTABLE=sapi/cli/php \

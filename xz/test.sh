@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Suite di test di xz (ctest) sugli stage indicati.
-#   Uso: ./test-xz.sh <stage>[,<stage>...]      es. ./test-xz.sh 0,4
+#   Uso: ./test.sh <stage>[,<stage>...]      es. ./test.sh 0,4
 #
 # Comprende i test unitari di liblzma (filtri, check, index, block, stream, ...),
 # test_files.sh (decodifica dei file di prova, anche corrotti di proposito),
@@ -12,13 +12,13 @@ set -uo pipefail
 [ $# -eq 1 ] || die "uso: $0 <stage>[,<stage>...]"
 parse_stages "$1"
 DIR=$SS_ROOT/xz
-OUT=$PWD/test-xz-$(date +%Y%m%d-%H%M%S)
+OUT=$(result_path test xz)
 mkdir -p "$OUT"
 
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
 	B=$DIR/build-s$s/build
-	[ -x "$B/xz" ] || die "stage $s: $B/xz non trovato (lancia build-xz.sh $s)"
+	[ -x "$B/xz" ] || die "stage $s: $B/xz non trovato (lancia build.sh $s)"
 	log=$OUT/s$s.log
 	rm -f "$B/Testing/Temporary/LastTestsFailed.log"
 	ctest --test-dir "$B" -j"$(nproc)" --output-on-failure > "$log" 2>&1

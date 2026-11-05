@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Compila PHP (solo la CLI) per uno stage.   Uso: ./build-php.sh <stage 0-4>
+# Compila PHP (solo la CLI) per uno stage.   Uso: ./build.sh <stage 0-4>
 #
 # Dal repository git servono buildconf (autoconf) e i generatori del parser
 # (bison, re2c): su Fedora  dnf install autoconf bison re2c

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Compila xz (liblzma + strumenti) per uno stage.   Uso: ./build-xz.sh <stage 0-4>
+# Compila xz (liblzma + strumenti) per uno stage.   Uso: ./build.sh <stage 0-4>
 #
 # Si usa CMake invece di autotools: dal repository git autotools richiede
 # autogen.sh (autoconf, automake, libtool, po4a), CMake no.

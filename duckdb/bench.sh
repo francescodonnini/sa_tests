@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Benchmark di DuckDB: le 22 query di TPC-H a scala 1 (circa 1 GB di dati),
 # con il benchmark_runner di DuckDB, in un solo thread.
-#   Uso: ./bench-duckdb.sh [-r ripetizioni] [-n esecuzioni] [-b pattern] <stage>[,<stage>...]
+#   Uso: ./bench.sh [-r ripetizioni] [-n esecuzioni] [-b pattern] <stage>[,<stage>...]
 #
 #   -r   ripetizioni dell'intera serie, con gli stage alternati (default 3)
 #   -n   esecuzioni misurate di ogni query per ripetizione (default 3), dopo
@@ -35,9 +35,9 @@ parse_stages "$1"
 DIR=$SS_ROOT/duckdb
 for s in "${STAGES[@]}"; do
 	check_prereq "$s"
-	[ -x "$DIR/build-s$s/build/benchmark/benchmark_runner" ] || die "stage $s: lancia build-duckdb.sh $s"
+	[ -x "$DIR/build-s$s/build/benchmark/benchmark_runner" ] || die "stage $s: lancia build.sh $s"
 done
-OUT=$PWD/bench-duckdb-$(date +%Y%m%d-%H%M%S).csv
+OUT=$(result_path bench duckdb).csv
 echo "stage,test,run,secondi" > "$OUT"
 for run in $(seq 1 "$RUNS"); do
 	echo "== ripetizione $run/$RUNS"
