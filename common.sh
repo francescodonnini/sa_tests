@@ -139,9 +139,9 @@ verify_bin() {
 # ir_report <file csv>: riepilogo del report del pass IR (stage 2 e 4)
 ir_report() {
 	[ -s "$1" ] || return 0
-	awk -F, '{for (i = 2; i <= 7; i++) t[i] += $i}
-	END {printf "   pass IR: %d file, %d funzioni, %d store, %d mascherati (%.1f%%), saltati: constaddr %d, knownbits %d, domtree %d\n",
-		NR, t[2], t[3], t[4], t[3] ? 100 * t[4] / t[3] : 0, t[5], t[6], t[7]}' "$1"
+	awk -F, '{for (i = 2; i <= 7; i++) t[i] += $i; ip += $NF}
+	END {printf "   pass IR: %d file, %d funzioni, %d store, %d mascherati sul puntatore, %d via base (%.1f%%), saltati: constaddr %d, knownbits %d, domtree %d\n",
+	NR, t[2], t[3], t[4], ip, t[3] ? 100 * (t[4] + ip) / t[3] : 0, t[5], t[6], t[7]}' "$1"
 	echo "   dettaglio per file: $1"
 }
 
