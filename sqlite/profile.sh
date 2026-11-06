@@ -21,8 +21,8 @@ for r in $(seq "$RUNS"); do
 			taskset -c "$CPU" "$DIR/s$s/speedtest1" --memdb --size "$SIZE" > "$OUT.log"
 		# tempi dei sotto-test: " 100 - descrizione.......   0.123s" e la riga TOTAL
 		awk -v s="s$s" -v r="$r" '/\.\.\. *[0-9.]+s$/ {
-			t = $1; sub(/\.+$/, "", t); v = $NF; sub(/s$/, "", v)
-			print s "," t "," r "," v }' "$OUT.log" >> "$OUT.csv"
+		t = $1; sub(/\.+$/, "", t); v = $NF; sub(/s$/, "", v)
+		printf "%s,%03d-%s,%s,%s\n", s, ++i, t, r, v }' "$OUT.log" >> "$OUT.csv"
 		# contatori: "valore,,evento,..."
 		awk -F, -v s="s$s" -v r="$r" '$3 ~ /^(cycles|instructions)/ {
 			e = $3; sub(/:u$/, "", e); print s "," e "," r "," $1 }' "$OUT.perf" >> "$OUT.csv"
